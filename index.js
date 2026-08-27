@@ -25,6 +25,9 @@ async function run() {
     await client.connect();
     // MongoDB Collection
     const jobsCollections = client.db("jobPortal").collection("jobs");
+    const applicationCollections = client
+      .db("jobPortal")
+      .collection("application");
 
     // Jobs Related Api
     // Jobs Post
@@ -76,6 +79,36 @@ async function run() {
         _id: new ObjectId(id),
       };
       const result = await jobsCollections.deleteOne(query);
+      res.send(result);
+    });
+
+    // ---------------------------------------------------------------------
+
+    // Job Apply Related Api
+    // Job Apply
+    app.post("/application", async (req, res) => {
+      const application = req.body;
+      const result = await applicationCollections.insertOne(application);
+      res.send(result);
+    });
+
+    // get my applyed job find by email
+    app.get("/application", async (req, res) => {
+      const email = req.query.email;
+
+      const query = {
+        applicant: email,
+      };
+      const result = await applicationCollections.find(query).toArray();
+      //  bad way to aggregete data
+      for (const application of result) {
+        const jobId = application.jobId;
+        const jobQuery = { _id: new ObjectId(jobId) };
+        const job = await jobsCollections.findOne(jobQuery);
+        application.jobTitle = job.jobTitle;
+        application.companyName = job.companyName;
+        application.companyLogo = job.companyLogo;
+      }
       res.send(result);
     });
 

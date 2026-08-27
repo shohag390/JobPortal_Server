@@ -112,6 +112,27 @@ async function run() {
       res.send(result);
     });
 
+    // applications received
+    app.get("/application/jobs/:job_id", async (req, res) => {
+      const job_id = req.params.job_id;
+      const query = { jobId: job_id };
+      const result = await applicationCollections.find(query).toArray();
+      res.send(result);
+    });
+
+    // application status update
+    app.patch("/application/job/:id", async (req, res) => {
+      const applicationId = req.params.id;
+      const filter = { _id: new ObjectId(applicationId) };
+      const updatedDoc = {
+        $set: {
+          status: req.body.status,
+        },
+      };
+      const result = await applicationCollections.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",

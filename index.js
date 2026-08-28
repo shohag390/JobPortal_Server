@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
     // MongoDB Collection
     const jobsCollections = client.db("jobPortal").collection("jobs");
     const applicationCollections = client
